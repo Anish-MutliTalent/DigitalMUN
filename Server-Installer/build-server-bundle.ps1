@@ -1,6 +1,6 @@
 $ErrorActionPreference = "Stop"
 $DistDir = "E:\DigitalMUN\Server-Installer\app"
-$ZipPath = "E:\DigitalMUN\release\SAFE-MUN-Server.zip"
+$ZipPath = "E:\DigitalMUN\Server-Installer\SAFE-MUN-Server.zip"
 
 Write-Host "Building workspace..."
 Set-Location -Path "E:\DigitalMUN"
@@ -22,8 +22,7 @@ Copy-Item -Path "E:\DigitalMUN\pnpm-workspace.yaml" -Destination $DistDir
 Copy-Item -Path "E:\DigitalMUN\pnpm-lock.yaml" -Destination $DistDir
 Copy-Item -Path "E:\DigitalMUN\.env.example" -Destination "$DistDir\.env"
 
-# Copy the installer script itself
-Copy-Item -Path "E:\DigitalMUN\Server-Installer\Install-SAFE-MUN-Server.ps1" -Destination "E:\DigitalMUN\Server-Installer\"
+# Installer script is already in E:\DigitalMUN\Server-Installer\
 
 Write-Host "Zipping the distribution..."
 if (Test-Path $ZipPath) {
