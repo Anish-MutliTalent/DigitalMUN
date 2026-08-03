@@ -24,7 +24,7 @@ function readAppVersion(): string {
   return '0.0.0';
 }
 
-export const DEFAULT_SERVER_URL = 'http://localhost:8080';
+export const DEFAULT_SERVER_URL = 'https://digitalmun.onrender.com';
 
 /** Monitoring poll interval (ms). Event-driven emission happens on change. */
 export const MONITOR_POLL_MS = 400;

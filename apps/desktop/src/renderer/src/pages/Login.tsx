@@ -27,8 +27,6 @@ export function LoginScreen() {
   const setServerUrl = useStore((s) => s.setServerUrl);
 
   const [tab, setTab] = useState<Tab>('delegate');
-  const [url, setUrl] = useState(serverUrl);
-  const [showSettings, setShowSettings] = useState(false);
 
   // Staff (chair/admin) form
   const [username, setUsername] = useState('');
@@ -167,26 +165,7 @@ export function LoginScreen() {
           )}
         </Card>
 
-        <div className="mt-4 text-center">
-          <button
-            onClick={() => setShowSettings((v) => !v)}
-            className="inline-flex items-center gap-1 text-xs text-muted hover:text-text"
-          >
-            <Settings size={12} /> Server settings
-          </button>
-        </div>
 
-        {showSettings && (
-          <Card className="mt-2">
-            <label className="block">
-              <span className="mb-1 block text-xs font-medium text-muted">Server URL</span>
-              <Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="http://host:8080" />
-            </label>
-            <Button variant="ghost" className="mt-2 w-full" onClick={() => void setServerUrl(url.trim())}>
-              Save
-            </Button>
-          </Card>
-        )}
 
         <p className="mt-6 text-center text-xs text-muted">
           Monitoring is transparent and metadata-only. No screens, audio, keystrokes, or documents are captured.

@@ -25,10 +25,16 @@
     "loadtest": "pnpm --filter @mun/server loadtest"
   },
   "devDependencies": {
+    "esbuild": "^0.28.1",
     "prettier": "^3.3.3",
     "typescript": "^5.7.2"
   },
   "pnpm": {
-    "onlyBuiltDependencies": ["electron", "esbuild", "koffi", "@node-rs/argon2"]
+    "onlyBuiltDependencies": [
+      "electron",
+      "esbuild",
+      "koffi",
+      "@node-rs/argon2"
+    ]
   }
 }

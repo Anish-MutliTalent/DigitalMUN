@@ -12,14 +12,16 @@ extraResources:
     to: renderer
 asarUnpack:
   - "**/node_modules/koffi/**"
+compression: maximum
 win:
   target:
-    - nsis
-  artifactName: SAFE-MUN-2026-Setup-${version}.${ext}
+    - portable
+  artifactName: SAFE-MUN-2026-${version}.${ext}
   icon: build/icon.png
 nsis:
   oneClick: true
-  perMachine: true
+  perMachine: false
+  allowToChangeInstallationDirectory: false
   createDesktopShortcut: true
   createStartMenuShortcut: true
   shortcutName: SAFE MUN 2026

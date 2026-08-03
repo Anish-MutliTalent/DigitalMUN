@@ -48,7 +48,8 @@ class EncryptedStore {
         return this.state;
       }
       const json = safeStorage.decryptString(buf);
-      this.state = { ...DEFAULT_STATE, ...JSON.parse(json) };
+      const parsed = JSON.parse(json);
+      this.state = { ...DEFAULT_STATE, ...parsed, serverUrl: DEFAULT_SERVER_URL };
       return this.state;
     } catch {
       this.state = { ...DEFAULT_STATE };

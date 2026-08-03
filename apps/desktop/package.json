@@ -2,6 +2,8 @@
   "name": "@mun/desktop",
   "version": "1.0.0",
   "private": true,
+  "description": "SAFE MUN 2026 Desktop App",
+  "author": "SAFE MUN",
   "main": "./out/main/index.js",
   "scripts": {
     "dev": "electron-vite dev",
