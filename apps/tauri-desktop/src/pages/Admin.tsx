@@ -33,7 +33,7 @@ import {
 } from '../components/ui';
 import type { Committee, Delegate, Role, SystemHealth } from '@mun/protocol';
 
-type Tab = 'health' | 'committees' | 'users' | 'sessions' | 'audit' | 'rules';
+type Tab = 'health' | 'committees' | 'users' | 'sessions' | 'audit' | 'rules' | 'settings';
 
 interface UserRow {
   id: string;
@@ -74,6 +74,7 @@ export function AdminScreen() {
     { id: 'sessions', label: 'Sessions' },
     { id: 'audit', label: 'Audit Log' },
     { id: 'rules', label: 'AI Rules' },
+    { id: 'settings', label: 'Settings' },
   ];
 
   return (
@@ -95,6 +96,7 @@ export function AdminScreen() {
       {tab === 'sessions' && <SessionsTab />}
       {tab === 'audit' && <AuditTab />}
       {tab === 'rules' && <RulesTab />}
+      {tab === 'settings' && <SettingsTab />}
     </div>
   );
 }
@@ -512,6 +514,53 @@ function RulesTab() {
               ))}
             </tbody>
           </table>
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+function SettingsTab() {
+  const allowFileUploads = useStore((s) => s.allowFileUploads);
+  const fetchSettings = useStore((s) => s.fetchSettings);
+  const updateAllowFileUploads = useStore((s) => s.updateAllowFileUploads);
+
+  useEffect(() => {
+    void fetchSettings();
+  }, [fetchSettings]);
+
+  return (
+    <div className="space-y-4">
+      <Card>
+        <SectionTitle>Submission Policy &amp; Settings</SectionTitle>
+        <div className="space-y-6">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-border/40 pb-4">
+            <div>
+              <h4 className="text-sm font-semibold text-text">PDF / DOC File Upload Submissions</h4>
+              <p className="text-xs text-muted mt-1 max-w-xl">
+                Allow delegates to upload PDF or DOC/DOCX resolution files directly.
+                When turned off, delegates can only submit resolutions via Google Doc links.
+              </p>
+            </div>
+            <button
+              onClick={() => void updateAllowFileUploads(!allowFileUploads)}
+              className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-semibold transition shrink-0 ${
+                allowFileUploads
+                  ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/30'
+                  : 'bg-rose-500/10 text-rose-500 border border-rose-500/30'
+              }`}
+            >
+              {allowFileUploads ? (
+                <>
+                  <CheckCircle2 size={16} /> File Uploads Enabled
+                </>
+              ) : (
+                <>
+                  <X size={16} /> File Uploads Disabled
+                </>
+              )}
+            </button>
+          </div>
         </div>
       </Card>
     </div>

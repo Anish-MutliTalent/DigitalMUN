@@ -391,6 +391,8 @@ function SubmissionCard({ delegateId }: { delegateId: string }) {
   const openSubmissionLink = useStore((s) => s.openSubmissionLink);
   const refreshSubmissions = useStore((s) => s.refreshSubmissions);
   const currentCommittee = useStore((s) => s.currentCommittee);
+  const allowFileUploads = useStore((s) => s.allowFileUploads);
+  const fetchSettings = useStore((s) => s.fetchSettings);
 
   const [type, setType] = useState<'resolution' | 'directive'>('resolution');
   const [title, setTitle] = useState('');
@@ -400,12 +402,18 @@ function SubmissionCard({ delegateId }: { delegateId: string }) {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
+    void fetchSettings();
+  }, [fetchSettings]);
+
+  useEffect(() => {
     if (currentCommittee?.id) void refreshSubmissions(currentCommittee.id);
   }, [currentCommittee?.id, refreshSubmissions]);
 
   const mine = submissions.filter((s) => s.delegateId === delegateId);
+  const activeMode = allowFileUploads ? mode : 'link';
 
   async function chooseFile() {
+    if (!allowFileUploads) return;
     const f = await pickFile();
     setPickedFile(f);
   }
@@ -413,11 +421,16 @@ function SubmissionCard({ delegateId }: { delegateId: string }) {
   async function submit() {
     if (!title.trim()) return;
     setBusy(true);
-    if (mode === 'link') {
+    if (activeMode === 'link') {
       if (!url.trim()) { setBusy(false); return; }
       await submitLink(type, title.trim(), url.trim());
       setUrl('');
     } else {
+      if (!allowFileUploads) {
+        useStore.getState().setToast({ kind: 'error', message: 'File upload submissions are disabled by administrator.' });
+        setBusy(false);
+        return;
+      }
       if (!pickedFile) { setBusy(false); return; }
       await submitFile(type, title.trim(), pickedFile.path);
       setPickedFile(null);
@@ -450,20 +463,24 @@ function SubmissionCard({ delegateId }: { delegateId: string }) {
         <div className="flex gap-2">
           <button
             type="button"
+            disabled={!allowFileUploads}
             onClick={() => setMode('file')}
             className={`inline-flex items-center gap-2 rounded-lg px-3.5 py-2 text-xs font-medium transition ${
-              mode === 'file'
+              !allowFileUploads
+                ? 'border border-border/40 bg-surface/30 text-muted/50 cursor-not-allowed opacity-60'
+                : activeMode === 'file'
                 ? 'bg-[#1C1D21] text-white dark:bg-white dark:text-black'
                 : 'border border-border bg-transparent text-text hover:bg-surface-2'
             }`}
+            title={!allowFileUploads ? 'PDF/DOC file upload submissions are disabled by administrator' : undefined}
           >
-            <Upload size={13} /> Upload PDF / DOC
+            <Upload size={13} /> Upload PDF / DOC {!allowFileUploads && '(Disabled by Admin)'}
           </button>
           <button
             type="button"
             onClick={() => setMode('link')}
             className={`inline-flex items-center gap-2 rounded-lg px-3.5 py-2 text-xs font-medium transition ${
-              mode === 'link'
+              activeMode === 'link'
                 ? 'bg-[#1C1D21] text-white dark:bg-white dark:text-black'
                 : 'border border-border bg-transparent text-text hover:bg-surface-2'
             }`}
@@ -475,7 +492,7 @@ function SubmissionCard({ delegateId }: { delegateId: string }) {
         {/* Row 3: input + submit */}
         <div className="flex items-center gap-3">
           <div className="flex-1">
-            {mode === 'link' ? (
+            {activeMode === 'link' ? (
               <Input
                 placeholder="https://docs.google.com/..."
                 value={url}
@@ -496,7 +513,7 @@ function SubmissionCard({ delegateId }: { delegateId: string }) {
           <button
             type="button"
             onClick={submit}
-            disabled={busy || !title.trim() || (mode === 'link' ? !url.trim() : !pickedFile)}
+            disabled={busy || !title.trim() || (activeMode === 'link' ? !url.trim() : !pickedFile)}
             className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-[#1C1D21] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-black active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white dark:text-black dark:hover:bg-stone-200"
           >
             <Send size={14} />

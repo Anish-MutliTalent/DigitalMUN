@@ -176,3 +176,29 @@ export async function listActiveSessions(): Promise<Array<{
 export function broadcastHealth(): Promise<void> {
   return systemHealth().then((h) => broker.broadcastAdmins(envelope('system_health', h)));
 }
+
+export async function getSettings(): Promise<{ allowFileUploads: boolean }> {
+  const { rows } = await pool.query("SELECT key, value FROM system_settings WHERE key = 'allow_file_uploads'");
+  const allowFileUploads = rows.length > 0 ? rows[0].value === 'true' : true;
+  return { allowFileUploads };
+}
+
+export async function updateSettings(
+  params: { allowFileUploads?: boolean },
+  adminUserId: string,
+): Promise<{ allowFileUploads: boolean }> {
+  if (typeof params.allowFileUploads === 'boolean') {
+    await pool.query(
+      `INSERT INTO system_settings (key, value, updated_at) VALUES ('allow_file_uploads', $1, $2)
+       ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = EXCLUDED.updated_at`,
+      [String(params.allowFileUploads), Date.now()],
+    );
+    await audit({
+      actor: adminUserId,
+      action: 'update_settings',
+      subject: 'allow_file_uploads',
+      detail: `File upload submissions ${params.allowFileUploads ? 'enabled' : 'disabled'} by admin.`,
+    });
+  }
+  return await getSettings();
+}

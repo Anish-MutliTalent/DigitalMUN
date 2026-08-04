@@ -218,8 +218,13 @@ export type AuditAction =
   | 'monitor_event'
   | 'break_start'
   | 'break_end'
+  | 'rule_create'
   | 'rule_update'
+  | 'rule_delete'
+  | 'user_create'
+  | 'key_reset'
   | 'admin_export'
+  | 'update_settings'
   | 'submission_submit'
   | 'submission_review'
   | 'submission_delete';

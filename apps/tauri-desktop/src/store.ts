@@ -60,6 +60,7 @@ interface MunState {
   systemHealth: SystemHealth | null;
   pendingCastAck: VoteCastAckPayload | null;
   submissions: Submission[];
+  allowFileUploads: boolean;
   // toasts
   toast: { kind: 'info' | 'success' | 'warning' | 'error'; message: string } | null;
 
@@ -70,6 +71,8 @@ interface MunState {
   logout: () => Promise<void>;
   castVote: (voteId: string, choice: VoteChoice) => Promise<VoteCastAckPayload>;
   setServerUrl: (url: string) => Promise<void>;
+  fetchSettings: () => Promise<void>;
+  updateAllowFileUploads: (enabled: boolean) => Promise<void>;
   // submissions
   refreshSubmissions: (committeeId: string) => Promise<void>;
   submitLink: (type: SubmissionType, title: string, url: string) => Promise<{ ok: boolean; error?: string }>;
@@ -108,6 +111,7 @@ export const useStore = create<MunState>((set, get) => ({
   systemHealth: null,
   pendingCastAck: null,
   submissions: [],
+  allowFileUploads: true,
   toast: null,
 
   bootstrap: async () => {
@@ -141,6 +145,7 @@ export const useStore = create<MunState>((set, get) => ({
         currentCommittee: r.committees[0] ?? null,
         connection: await api.getConnection(),
       });
+      void get().fetchSettings();
     } else if (result.reloginRequired) {
       set({ toast: { kind: 'warning', message: result.message ?? 'Re-login required' } });
     } else if (result.error) {
@@ -161,12 +166,34 @@ export const useStore = create<MunState>((set, get) => ({
         currentCommittee: r.committees[0] ?? null,
         connection: await api.getConnection(),
       });
+      void get().fetchSettings();
     } else if (result.reloginRequired) {
       set({ toast: { kind: 'warning', message: result.message ?? 'Re-login required' } });
     } else if (result.error) {
       set({ toast: { kind: 'error', message: result.error } });
     }
     return result;
+  },
+
+  fetchSettings: async () => {
+    const r = await api.apiRequest('GET', '/settings');
+    if (r.status === 200 && r.data) {
+      const allowFileUploads = (r.data as { allowFileUploads?: boolean }).allowFileUploads;
+      if (typeof allowFileUploads === 'boolean') {
+        set({ allowFileUploads });
+      }
+    }
+  },
+
+  updateAllowFileUploads: async (enabled: boolean) => {
+    const r = await api.apiRequest('PUT', '/admin/settings', { allowFileUploads: enabled });
+    if (r.status === 200 && r.data) {
+      const allowFileUploads = (r.data as { allowFileUploads?: boolean }).allowFileUploads;
+      set({ allowFileUploads: typeof allowFileUploads === 'boolean' ? allowFileUploads : enabled });
+      set({ toast: { kind: 'success', message: `File upload submissions ${enabled ? 'enabled' : 'disabled'}.` } });
+    } else {
+      set({ toast: { kind: 'error', message: 'Failed to update settings' } });
+    }
   },
 
   logout: async () => {

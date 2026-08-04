@@ -101,4 +101,21 @@ export async function registerAdminRoutes(app: FastifyInstance): Promise<void> {
     reply.header('Content-Disposition', 'attachment; filename="audit-log.json"');
     return reply.send(result);
   });
+
+  // ─── System Settings ────────────────────────────────────────────────────────
+  app.get('/settings', { preHandler: [authPreHandler] }, async (_req, reply) => {
+    const settings = await admin.getSettings();
+    return reply.send(settings);
+  });
+
+  app.get('/admin/settings', { preHandler: [authPreHandler, requireRole('admin')] }, async (_req, reply) => {
+    const settings = await admin.getSettings();
+    return reply.send(settings);
+  });
+
+  app.put('/admin/settings', { preHandler: [authPreHandler, requireRole('admin')] }, async (req, reply) => {
+    const body = (req.body as { allowFileUploads?: boolean }) ?? {};
+    const settings = await admin.updateSettings(body, req.user!.userId);
+    return reply.send(settings);
+  });
 }
