@@ -282,11 +282,18 @@ export const useStore = create<MunState>((set, get) => ({
           votes: Vote[];
           activeBreak: ScheduledBreak | null;
         };
+        // Also refresh the logged-in delegate's own record so that
+        // enable/disable and other changes are reflected immediately.
+        const selfDelegate = get().delegate;
+        const updatedSelf = selfDelegate
+          ? p.delegates.find((d) => d.id === selfDelegate.id) ?? selfDelegate
+          : null;
         set({
           currentCommittee: p.committee,
           delegates: p.delegates,
           votes: p.votes,
           activeBreak: p.activeBreak,
+          delegate: updatedSelf,
         });
         break;
       }
