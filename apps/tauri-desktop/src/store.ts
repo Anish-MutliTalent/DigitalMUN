@@ -284,10 +284,14 @@ export const useStore = create<MunState>((set, get) => ({
         };
         // Also refresh the logged-in delegate's own record so that
         // enable/disable and other changes are reflected immediately.
+        const currentUser = get().user;
         const selfDelegate = get().delegate;
-        const updatedSelf = selfDelegate
-          ? p.delegates.find((d) => d.id === selfDelegate.id) ?? selfDelegate
-          : null;
+        const updatedSelf = p.delegates.find(
+          (d) =>
+            (selfDelegate && d.id === selfDelegate.id) ||
+            (currentUser && d.userId === currentUser.id) ||
+            (selfDelegate && d.country.toLowerCase() === selfDelegate.country.toLowerCase())
+        ) ?? selfDelegate;
         set({
           currentCommittee: p.committee,
           delegates: p.delegates,
