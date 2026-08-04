@@ -28,6 +28,7 @@ import {
   Link as LinkIcon,
   Upload,
   Vote as VoteIcon,
+  ShieldOff,
 } from 'lucide-react';
 import { useStore } from '../store';
 import {
@@ -92,6 +93,39 @@ export function DelegateScreen() {
 
   if (!delegate || !committee) {
     return <EmptyState>You are not assigned to a committee.</EmptyState>;
+  }
+
+  if (!delegate.enabled) {
+    const reasonText = (delegate.disabledReason?.trim() || "YOU'VE BEEN GAGGED").toUpperCase();
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/95 backdrop-blur-xl p-6 text-slate-100 select-none">
+        <div className="relative w-full max-w-2xl overflow-hidden rounded-3xl border-2 border-amber-500/40 bg-gradient-to-b from-slate-900 via-slate-950 to-black p-10 text-center shadow-2xl shadow-amber-950/50">
+          {/* Subtle gold glow accent */}
+          <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-64 h-64 rounded-full bg-amber-500/10 blur-3xl pointer-events-none" />
+
+          <div className="relative z-10 flex flex-col items-center">
+            {/* Regal Crest / Shield Icon */}
+            <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full border border-amber-500/40 bg-amber-500/10 text-amber-400 shadow-inner">
+              <ShieldOff size={42} className="stroke-[1.5]" />
+            </div>
+
+            <div className="mb-2 font-serif text-xs font-semibold uppercase tracking-[0.35em] text-amber-500/80">
+              BY DECREE OF THE CHAIR
+            </div>
+
+            <div className="my-6 w-full border-t border-b border-amber-500/20 py-8 px-6 bg-amber-950/10">
+              <h1 className="font-serif text-3xl sm:text-4xl font-bold uppercase tracking-wider text-amber-100 leading-relaxed drop-shadow-md">
+                "{reasonText}"
+              </h1>
+            </div>
+
+            <p className="font-serif text-xs italic tracking-[0.2em] text-slate-400 uppercase">
+              YOUR DELEGATION HAS BEEN SILENCED AND DISABLED.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
