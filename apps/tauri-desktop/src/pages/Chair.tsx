@@ -603,8 +603,8 @@ export function ChairScreen() {
       </div>
       {/* ── Disable / Silence Delegate Modal ───────────────────────── */}
       {disablingDelegate && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-4 select-none">
-          <div className="relative w-full max-w-lg overflow-hidden rounded-3xl border-2 border-amber-500/40 bg-gradient-to-b from-slate-900 via-slate-950 to-black p-6 text-slate-100 shadow-2xl shadow-amber-950/50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 select-none">
+          <div className="relative w-full max-w-lg overflow-hidden rounded-3xl border border-amber-500/40 bg-neutral-950 p-6 text-neutral-100 shadow-2xl shadow-amber-950/40">
             <div className="flex items-center gap-3 border-b border-amber-500/20 pb-4 mb-5">
               <div className="flex h-10 w-10 items-center justify-center rounded-full border border-amber-500/40 bg-amber-500/10 text-amber-400">
                 <ShieldOff size={20} />
@@ -613,7 +613,7 @@ export function ChairScreen() {
                 <h3 className="font-serif text-lg font-bold uppercase tracking-wider text-amber-100">
                   Silence &amp; Disable Delegate
                 </h3>
-                <p className="text-xs font-serif italic text-amber-500/80">
+                <p className="text-xs font-serif italic text-amber-400/80">
                   Issuing Decree for Delegation: <span className="font-bold text-amber-200">{disablingDelegate.country}</span>
                 </p>
               </div>
@@ -639,7 +639,7 @@ export function ChairScreen() {
                       className={`rounded-xl border px-3 py-1.5 font-serif text-xs font-bold uppercase tracking-wide transition ${
                         disableReason === preset
                           ? 'border-amber-400 bg-amber-500/20 text-amber-200 shadow-sm shadow-amber-500/30'
-                          : 'border-slate-800 bg-slate-900/80 text-slate-400 hover:border-amber-500/40 hover:text-slate-200'
+                          : 'border-neutral-800 bg-black text-neutral-400 hover:border-amber-500/40 hover:text-amber-200'
                       }`}
                     >
                       {preset}
@@ -657,7 +657,7 @@ export function ChairScreen() {
                   onChange={(e) => setDisableReason(e.target.value)}
                   placeholder="ENTER DECREE COMMENT..."
                   rows={2}
-                  className="w-full rounded-2xl border border-amber-500/30 bg-slate-950 p-3.5 font-serif text-sm font-bold uppercase tracking-wide text-amber-100 placeholder:text-slate-600 focus:border-amber-400 focus:outline-none focus:ring-1 focus:ring-amber-400/50"
+                  className="w-full rounded-2xl border border-amber-500/30 bg-black p-3.5 font-serif text-sm font-bold uppercase tracking-wide text-amber-100 placeholder:text-neutral-600 focus:border-amber-400 focus:outline-none focus:ring-1 focus:ring-amber-400/50"
                 />
               </div>
             </div>
@@ -666,14 +666,14 @@ export function ChairScreen() {
               <button
                 type="button"
                 onClick={() => setDisablingDelegate(null)}
-                className="rounded-xl border border-slate-700 bg-slate-900 px-4 py-2.5 font-serif text-xs font-semibold uppercase tracking-wider text-slate-300 hover:bg-slate-800"
+                className="rounded-xl border border-neutral-800 bg-neutral-900 px-4 py-2.5 font-serif text-xs font-semibold uppercase tracking-wider text-neutral-300 hover:bg-neutral-800"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={() => void confirmDisable()}
-                className="rounded-xl border border-amber-400/50 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-slate-950 px-5 py-2.5 font-serif text-xs font-bold uppercase tracking-widest shadow-lg shadow-amber-950/60 transition active:scale-95"
+                className="rounded-xl border border-amber-400/50 bg-amber-500 hover:bg-amber-400 text-black px-5 py-2.5 font-serif text-xs font-bold uppercase tracking-widest shadow-lg shadow-amber-950/60 transition active:scale-95"
               >
                 Enforce Decree
               </button>
