@@ -459,6 +459,7 @@ function rowToDelegate(r: Record<string, unknown>): import('@mun/protocol').Dele
     connectionStatus: r.connection_status as import('@mun/protocol').ConnectionStatus,
     lastHeartbeatAt: r.last_heartbeat_at ? Number(r.last_heartbeat_at) : null,
     enabled: r.enabled as boolean,
+    disabledReason: (r.disabled_reason as string | null) ?? null,
     reloginRequested: false,
     createdAt: Number(r.created_at as number),
   };

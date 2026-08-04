@@ -83,8 +83,6 @@ CREATE TABLE IF NOT EXISTS delegates (
   created_at         BIGINT NOT NULL DEFAULT (cast(extract(epoch from clock_timestamp()) * 1000 as bigint))
 );
 
-ALTER TABLE delegates ADD COLUMN IF NOT EXISTS disabled_reason TEXT;
-
 CREATE INDEX IF NOT EXISTS delegates_committee_idx ON delegates(committee_id);
 CREATE INDEX IF NOT EXISTS delegates_enabled_idx ON delegates(committee_id) WHERE enabled = true;
 
