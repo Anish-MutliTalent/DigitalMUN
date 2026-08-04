@@ -1,3 +1,4 @@
+electronLanguages: ["en-US"]
 appId: org.safemun2026.app
 productName: SAFE MUN 2026
 copyright: Copyright © SAFE MUN 2026
@@ -7,6 +8,7 @@ directories:
 files:
   - out/**/*
   - "!out/renderer/**/*"
+  - "!node_modules/koffi/build/koffi/*"
 extraResources:
   - from: out/renderer
     to: renderer
@@ -16,8 +18,10 @@ compression: maximum
 win:
   target:
     - portable
-  artifactName: SAFE-MUN-2026-${version}.${ext}
+  artifactName: SAFE-MUN-2026-Setup-${version}.${ext}
   icon: build/icon.png
+  files:
+    - "node_modules/koffi/build/koffi/win32_${arch}/**/*"
 nsis:
   oneClick: true
   perMachine: false
@@ -33,9 +37,13 @@ mac:
   hardenedRuntime: true
   gatekeeperAssess: false
   icon: build/icon.png
+  files:
+    - "node_modules/koffi/build/koffi/darwin_${arch}/**/*"
 linux:
   target:
     - AppImage
   category: Utility
   icon: build/icon.png
+  files:
+    - "node_modules/koffi/build/koffi/linux_${arch}/**/*"
 publish: null

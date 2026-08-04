@@ -215,10 +215,15 @@ export async function setAttendance(delegateId: string, attendance: Attendance):
   return d;
 }
 
-export async function setEnabled(delegateId: string, enabled: boolean, byUserId: string): Promise<Delegate> {
+export async function setEnabled(
+  delegateId: string,
+  enabled: boolean,
+  byUserId: string,
+  disabledReason?: string | null,
+): Promise<Delegate> {
   const { rows } = await pool.query(
-    'UPDATE delegates SET enabled = $1 WHERE id = $2 RETURNING *',
-    [enabled, delegateId],
+    'UPDATE delegates SET enabled = $1, disabled_reason = $2 WHERE id = $3 RETURNING *',
+    [enabled, enabled ? null : (disabledReason ?? null), delegateId],
   );
   if (rows.length === 0) throw new ProtocolError('DELEGATE_NOT_FOUND', 'Delegate not found');
   const d = rowToDelegate(rows[0]);
@@ -227,7 +232,7 @@ export async function setEnabled(delegateId: string, enabled: boolean, byUserId:
     actor: byUserId,
     action: enabled ? 'delegate_enable' : 'delegate_disable',
     subject: delegateId,
-    detail: `Delegate ${d.country} ${enabled ? 'enabled' : 'disabled'}.`,
+    detail: `Delegate ${d.country} ${enabled ? 'enabled' : 'disabled'}${disabledReason ? ` (${disabledReason})` : ''}.`,
   });
   await broadcastCommitteeState(d.committeeId);
   return d;
@@ -358,6 +363,7 @@ function rowToDelegate(r: Record<string, unknown>): Delegate {
     connectionStatus: r.connection_status as Delegate['connectionStatus'],
     lastHeartbeatAt: r.last_heartbeat_at ? Number(r.last_heartbeat_at) : null,
     enabled: r.enabled as boolean,
+    disabledReason: (r.disabled_reason as string | null) ?? null,
     reloginRequested: false,
     createdAt: Number(r.created_at as number),
   };

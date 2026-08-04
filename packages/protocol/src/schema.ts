@@ -93,6 +93,7 @@ export const DelegateSchema = z.object({
   connectionStatus: ConnectionStatusSchema,
   lastHeartbeatAt: ts.nullable(),
   enabled: z.boolean(),
+  disabledReason: z.string().max(512).nullable().optional(),
   reloginRequested: z.boolean(),
   createdAt: ts,
 });

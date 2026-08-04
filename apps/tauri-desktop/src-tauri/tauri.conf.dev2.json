@@ -1,0 +1,1 @@
+{ "build": { "beforeDevCommand": "pnpm vite --port 5174", "devUrl": "http://localhost:5174" } }

@@ -70,8 +70,6 @@ export function ChairScreen() {
   const [breakEnd, setBreakEnd] = useState('');
   const [busy, setBusy] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [disablingDelegate, setDisablingDelegate] = useState<Delegate | null>(null);
-  const [disableReason, setDisableReason] = useState<string>("YOU'VE BEEN GAGGED");
 
   const submissions = useStore((s) => s.submissions);
   const refreshSubmissions = useStore((s) => s.refreshSubmissions);
@@ -99,17 +97,7 @@ export function ChairScreen() {
     await req('POST', `/committee/${cid}/delegate/${d.id}/attendance`, { attendance });
   }
   async function toggleEnabled(d: Delegate) {
-    if (d.enabled) {
-      setDisableReason("YOU'VE BEEN GAGGED");
-      setDisablingDelegate(d);
-    } else {
-      await req('POST', `/committee/${cid}/delegate/${d.id}/enable`);
-    }
-  }
-  async function confirmDisable() {
-    if (!disablingDelegate) return;
-    await req('POST', `/committee/${cid}/delegate/${disablingDelegate.id}/disable`, { reason: disableReason });
-    setDisablingDelegate(null);
+    await req('POST', `/committee/${cid}/delegate/${d.id}/${d.enabled ? 'disable' : 'enable'}`);
   }
   async function forceLogout(d: Delegate) {
     await req('POST', `/committee/${cid}/delegate/${d.id}/force-logout`);
@@ -601,86 +589,6 @@ export function ChairScreen() {
           </div>
         </Card>
       </div>
-      {/* ── Disable / Silence Delegate Modal ───────────────────────── */}
-      {disablingDelegate && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-4 select-none">
-          <div className="relative w-full max-w-lg overflow-hidden rounded-3xl border-2 border-amber-500/40 bg-gradient-to-b from-slate-900 via-slate-950 to-black p-6 text-slate-100 shadow-2xl shadow-amber-950/50">
-            <div className="flex items-center gap-3 border-b border-amber-500/20 pb-4 mb-5">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full border border-amber-500/40 bg-amber-500/10 text-amber-400">
-                <ShieldOff size={20} />
-              </div>
-              <div>
-                <h3 className="font-serif text-lg font-bold uppercase tracking-wider text-amber-100">
-                  Silence & Disable Delegate
-                </h3>
-                <p className="text-xs font-serif italic text-amber-500/80">
-                  Issuing Decree for Delegation: <span className="font-bold text-amber-200">{disablingDelegate.country}</span>
-                </p>
-              </div>
-            </div>
-
-            <div className="space-y-4 mb-6">
-              <div>
-                <label className="block font-serif text-xs font-semibold uppercase tracking-widest text-amber-400/80 mb-2">
-                  Select Preset Decree
-                </label>
-                <div className="flex flex-wrap gap-2">
-                  {[
-                    "YOU'VE BEEN GAGGED",
-                    "SHOULDN'T'VE DONE THAT",
-                    "BY DECREE OF THE CHAIR, BE SILENT",
-                    "ORDER IN THE COMMITTEE",
-                    "DELEGATION DISCIPLINED",
-                  ].map((preset) => (
-                    <button
-                      key={preset}
-                      type="button"
-                      onClick={() => setDisableReason(preset)}
-                      className={`rounded-xl border px-3 py-1.5 font-serif text-xs font-bold uppercase tracking-wide transition ${
-                        disableReason === preset
-                          ? 'border-amber-400 bg-amber-500/20 text-amber-200 shadow-sm shadow-amber-500/30'
-                          : 'border-slate-800 bg-slate-900/80 text-slate-400 hover:border-amber-500/40 hover:text-slate-200'
-                      }`}
-                    >
-                      {preset}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <label className="block font-serif text-xs font-semibold uppercase tracking-widest text-amber-400/80 mb-1.5">
-                  Or Custom Decree Comment
-                </label>
-                <textarea
-                  value={disableReason}
-                  onChange={(e) => setDisableReason(e.target.value)}
-                  placeholder="ENTER DECREE COMMENT..."
-                  rows={2}
-                  className="w-full rounded-2xl border border-amber-500/30 bg-slate-950 p-3.5 font-serif text-sm font-bold uppercase tracking-wide text-amber-100 placeholder:text-slate-600 focus:border-amber-400 focus:outline-none focus:ring-1 focus:ring-amber-400/50"
-                />
-              </div>
-            </div>
-
-            <div className="flex items-center justify-end gap-3 pt-4 border-t border-amber-500/20">
-              <button
-                type="button"
-                onClick={() => setDisablingDelegate(null)}
-                className="rounded-xl border border-slate-700 bg-slate-900 px-4 py-2.5 font-serif text-xs font-semibold uppercase tracking-wider text-slate-300 hover:bg-slate-800"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={() => void confirmDisable()}
-                className="rounded-xl border border-amber-400/50 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-slate-950 px-5 py-2.5 font-serif text-xs font-bold uppercase tracking-widest shadow-lg shadow-amber-950/60 transition active:scale-95"
-              >
-                Enforce Decree
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

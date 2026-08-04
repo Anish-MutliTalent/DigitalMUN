@@ -75,6 +75,8 @@ export interface Delegate {
   lastHeartbeatAt: number | null;
   /** Whether the chair has enabled the delegate (disabled delegates can't vote). */
   enabled: boolean;
+  /** Reason or comment entered by chair when disabling. */
+  disabledReason?: string | null;
   /** Whether the delegate has requested re-login approval. */
   reloginRequested: boolean;
   createdAt: number;

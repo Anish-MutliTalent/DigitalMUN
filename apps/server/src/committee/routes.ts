@@ -151,7 +151,8 @@ export async function registerCommitteeRoutes(app: FastifyInstance): Promise<voi
     { preHandler: [authPreHandler, requireCommitteeChair()] },
     async (request, reply) => {
       const { delegateId } = request.params as { delegateId: string };
-      const d = await committee.setEnabled(delegateId, false, request.user!.userId);
+      const { reason, comment } = (request.body as { reason?: string; comment?: string }) ?? {};
+      const d = await committee.setEnabled(delegateId, false, request.user!.userId, reason ?? comment ?? null);
       return reply.send({ delegate: d });
     },
   );
