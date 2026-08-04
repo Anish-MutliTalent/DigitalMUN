@@ -111,23 +111,22 @@ export const useStore = create<MunState>((set, get) => ({
   toast: null,
 
   bootstrap: async () => {
-    const state = (await api.getState()) as PersistedState;
+    // Always start at the login screen on app launch/reopen.
+    // Clear any persisted session so reopening the app lands on the login page every time.
+    await api.logout().catch(() => {});
+    await api.clearState().catch(() => {});
     const platform = await api.getPlatform();
     const connection = await api.getConnection();
     set({
-      user: state.user,
-      delegate: state.delegate,
-      committees: state.committees,
-      rules: state.rules,
-      serverUrl: state.serverUrl,
+      user: null,
+      delegate: null,
+      committees: [],
+      rules: [],
+      currentCommittee: null,
       platform,
       connection,
       hydrated: true,
     });
-    // If a session was restored, the backend already reconnected; refresh connection.
-    if (state.user) {
-      void get().setConnection(await api.getConnection());
-    }
   },
 
   login: async (username, password) => {

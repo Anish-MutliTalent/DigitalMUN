@@ -92,7 +92,14 @@ export function DelegateScreen() {
   }
 
   if (!delegate || !committee) {
-    return <EmptyState>You are not assigned to a committee.</EmptyState>;
+    return (
+      <div className="flex flex-col items-center justify-center gap-4 py-16 text-center">
+        <EmptyState>You are not assigned to a committee.</EmptyState>
+        <Button variant="secondary" onClick={() => void useStore.getState().logout()}>
+          Return to Login Screen
+        </Button>
+      </div>
+    );
   }
 
   if (!delegate.enabled) {
