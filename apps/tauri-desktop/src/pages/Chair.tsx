@@ -603,26 +603,26 @@ export function ChairScreen() {
       </div>
       {/* ── Disable / Silence Delegate Modal ───────────────────────── */}
       {disablingDelegate && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 select-none">
-          <div className="relative w-full max-w-lg overflow-hidden rounded-3xl border border-amber-500/40 bg-neutral-950 p-6 text-neutral-100 shadow-2xl shadow-amber-950/40">
-            <div className="flex items-center gap-3 border-b border-amber-500/20 pb-4 mb-5">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full border border-amber-500/40 bg-amber-500/10 text-amber-400">
-                <ShieldOff size={20} />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 select-none">
+          <div className="relative w-full max-w-lg overflow-hidden rounded-2xl border border-border bg-card p-6 text-text shadow-xl">
+            <div className="flex items-center gap-3 border-b border-border/40 pb-4 mb-4">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-rose-500/10 text-rose-500">
+                <ShieldOff size={18} />
               </div>
               <div>
-                <h3 className="font-serif text-lg font-bold uppercase tracking-wider text-amber-100">
-                  Silence &amp; Disable Delegate
+                <h3 className="font-serif text-base font-semibold text-text">
+                  Disable Delegate — {disablingDelegate.country}
                 </h3>
-                <p className="text-xs font-serif italic text-amber-400/80">
-                  Issuing Decree for Delegation: <span className="font-bold text-amber-200">{disablingDelegate.country}</span>
+                <p className="text-xs text-muted">
+                  Set a reason or comment to display to the delegate.
                 </p>
               </div>
             </div>
 
             <div className="space-y-4 mb-6">
               <div>
-                <label className="block font-serif text-xs font-semibold uppercase tracking-widest text-amber-400/80 mb-2">
-                  Select Preset Decree
+                <label className="block font-serif text-xs font-medium text-muted uppercase tracking-wider mb-2">
+                  Preset Comments
                 </label>
                 <div className="flex flex-wrap gap-2">
                   {[
@@ -636,10 +636,10 @@ export function ChairScreen() {
                       key={preset}
                       type="button"
                       onClick={() => setDisableReason(preset)}
-                      className={`rounded-xl border px-3 py-1.5 font-serif text-xs font-bold uppercase tracking-wide transition ${
+                      className={`rounded-lg border px-2.5 py-1 font-serif text-xs font-semibold uppercase tracking-wide transition ${
                         disableReason === preset
-                          ? 'border-amber-400 bg-amber-500/20 text-amber-200 shadow-sm shadow-amber-500/30'
-                          : 'border-neutral-800 bg-black text-neutral-400 hover:border-amber-500/40 hover:text-amber-200'
+                          ? 'border-accent bg-accent/10 text-accent'
+                          : 'border-border/60 bg-surface/60 text-muted hover:border-border hover:text-text'
                       }`}
                     >
                       {preset}
@@ -649,34 +649,32 @@ export function ChairScreen() {
               </div>
 
               <div>
-                <label className="block font-serif text-xs font-semibold uppercase tracking-widest text-amber-400/80 mb-1.5">
-                  Or Custom Decree Comment
+                <label className="block font-serif text-xs font-medium text-muted uppercase tracking-wider mb-1.5">
+                  Custom Comment
                 </label>
                 <textarea
                   value={disableReason}
                   onChange={(e) => setDisableReason(e.target.value)}
-                  placeholder="ENTER DECREE COMMENT..."
+                  placeholder="Enter comment..."
                   rows={2}
-                  className="w-full rounded-2xl border border-amber-500/30 bg-black p-3.5 font-serif text-sm font-bold uppercase tracking-wide text-amber-100 placeholder:text-neutral-600 focus:border-amber-400 focus:outline-none focus:ring-1 focus:ring-amber-400/50"
+                  className="w-full rounded-xl border border-border/60 bg-surface p-3 font-serif text-sm font-semibold uppercase text-text placeholder:text-muted/50 focus:border-accent focus:outline-none"
                 />
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-3 pt-4 border-t border-amber-500/20">
-              <button
-                type="button"
+            <div className="flex items-center justify-end gap-2 pt-3 border-t border-border/40">
+              <Button
+                variant="secondary"
                 onClick={() => setDisablingDelegate(null)}
-                className="rounded-xl border border-neutral-800 bg-neutral-900 px-4 py-2.5 font-serif text-xs font-semibold uppercase tracking-wider text-neutral-300 hover:bg-neutral-800"
               >
                 Cancel
-              </button>
-              <button
-                type="button"
+              </Button>
+              <Button
+                variant="danger"
                 onClick={() => void confirmDisable()}
-                className="rounded-xl border border-amber-400/50 bg-amber-500 hover:bg-amber-400 text-black px-5 py-2.5 font-serif text-xs font-bold uppercase tracking-widest shadow-lg shadow-amber-950/60 transition active:scale-95"
               >
-                Enforce Decree
-              </button>
+                Disable Delegate
+              </Button>
             </div>
           </div>
         </div>
