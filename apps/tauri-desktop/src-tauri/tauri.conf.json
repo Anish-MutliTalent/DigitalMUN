@@ -13,8 +13,8 @@
     "windows": [
       {
         "title": "SAFE MUN 2026",
-        "width": 1440,
-        "height": 810,
+        "width": 1280,
+        "height": 720,
         "resizable": true,
         "fullscreen": false
       }
