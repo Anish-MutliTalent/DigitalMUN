@@ -45,7 +45,7 @@ export function Layout({ children }: { children: ReactNode }) {
   // Subtitle format: e.g. "Canada • delegate • General Assembly"
   const subtitle = [
     user?.role === 'delegate' ? (delegate?.country ?? user.displayName) : user?.displayName,
-    user?.role,
+    user?.role === 'vice' ? 'moderator' : user?.role,
     currentCommittee?.name,
   ]
     .filter(Boolean)

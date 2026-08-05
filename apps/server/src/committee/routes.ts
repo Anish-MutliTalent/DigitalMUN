@@ -22,6 +22,7 @@ export async function registerCommitteeRoutes(app: FastifyInstance): Promise<voi
         topic?: string;
         description?: string;
         chairUserId?: string | null;
+        viceUserId?: string | null;
       };
       if (!body.name || !body.topic) {
         throw new ProtocolError('VALIDATION_ERROR', 'name and topic required');
@@ -29,8 +30,9 @@ export async function registerCommitteeRoutes(app: FastifyInstance): Promise<voi
       const c = await committee.createCommittee({
         name: body.name,
         topic: body.topic,
-        description: body.description,
+        description: body.description ?? '',
         chairUserId: body.chairUserId ?? null,
+        viceUserId: body.viceUserId ?? null,
       });
       return reply.send({ committee: c });
     },
@@ -47,6 +49,7 @@ export async function registerCommitteeRoutes(app: FastifyInstance): Promise<voi
         topic: body.topic as string | undefined,
         description: body.description as string | undefined,
         chairUserId: body.chairUserId as string | null | undefined,
+        viceUserId: body.viceUserId as string | null | undefined,
       });
       return reply.send({ committee: c });
     },

@@ -471,9 +471,9 @@ async function buildLoginResponse(
       );
       if (crows.length > 0) committees.push(rowToCommittee(crows[0]));
     }
-  } else if (userRow.role === 'chair') {
+  } else if (userRow.role === 'chair' || userRow.role === 'vice') {
     const { rows: crows } = await pool.query(
-      'SELECT * FROM committees WHERE chair_user_id = $1',
+      'SELECT * FROM committees WHERE chair_user_id = $1 OR vice_user_id = $1',
       [userRow.id],
     );
     for (const c of crows) committees.push(rowToCommittee(c));
@@ -529,6 +529,7 @@ function rowToCommittee(r: Record<string, unknown>): Committee {
     description: (r.description as string) ?? '',
     status: r.status as Committee['status'],
     chairUserId: (r.chair_user_id as string | null) ?? null,
+    viceUserId: (r.vice_user_id as string | null) ?? null,
     createdAt: Number(r.created_at as number),
     rev: Number(r.rev as number),
   };

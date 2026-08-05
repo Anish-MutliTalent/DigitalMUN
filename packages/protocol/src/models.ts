@@ -15,7 +15,7 @@
 
 // ─── Roles & users ────────────────────────────────────────────────────────────
 
-export type Role = 'delegate' | 'chair' | 'admin';
+export type Role = 'delegate' | 'chair' | 'admin' | 'vice';
 
 export interface User {
   id: string;
@@ -49,6 +49,7 @@ export interface Committee {
   description: string;
   status: CommitteeStatus;
   chairUserId: string | null;
+  viceUserId: string | null;
   createdAt: number;
   /** Update sequence — increments on every state change for optimistic sync. */
   rev: number;

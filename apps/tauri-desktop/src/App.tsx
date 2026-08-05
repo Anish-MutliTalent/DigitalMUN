@@ -53,7 +53,7 @@ export default function App() {
         <Layout>
           {user.role === 'delegate' ? (
             <DelegateScreen />
-          ) : user.role === 'chair' ? (
+          ) : user.role === 'chair' || user.role === 'vice' ? (
             <ChairScreen />
           ) : (
             <AdminScreen />

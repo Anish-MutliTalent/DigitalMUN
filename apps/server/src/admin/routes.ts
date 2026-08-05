@@ -44,6 +44,16 @@ export async function registerAdminRoutes(app: FastifyInstance): Promise<void> {
     return reply.send({ user });
   });
 
+  app.delete(
+    '/admin/users/:userId',
+    { preHandler: [authPreHandler, requireRole('admin')] },
+    async (req, reply) => {
+      const { userId } = req.params as { userId: string };
+      await admin.deleteUser(userId);
+      return reply.send({ ok: true });
+    },
+  );
+
   app.post(
     '/admin/users/:userId/force-logout',
     { preHandler: [authPreHandler, requireRole('admin')] },

@@ -49,6 +49,21 @@ export async function createUser(params: {
   return { id, username: params.username, role: params.role, displayName: params.displayName, createdAt: now };
 }
 
+export async function deleteUser(userId: string): Promise<void> {
+  const { rows } = await pool.query('SELECT role FROM users WHERE id = $1', [userId]);
+  if (rows.length === 0) throw new ProtocolError('VALIDATION_ERROR', 'User not found');
+
+  if (rows[0].role === 'admin') {
+    const { rows: adminRows } = await pool.query("SELECT COUNT(*) as count FROM users WHERE role = 'admin'");
+    if (parseInt(adminRows[0].count, 10) <= 1) {
+      throw new ProtocolError('VALIDATION_ERROR', 'Cannot delete the last remaining admin account');
+    }
+  }
+
+  const { rowCount } = await pool.query("DELETE FROM users WHERE id = $1 AND role IN ('chair', 'vice', 'admin')", [userId]);
+  if (rowCount === 0) throw new ProtocolError('VALIDATION_ERROR', 'User cannot be deleted');
+}
+
 export async function listUsers(): Promise<Array<User & { hasDelegate: boolean; committeeId: string | null }>> {
   const { rows } = await pool.query(
     `SELECT u.id, u.username, u.role, u.display_name, u.created_at,

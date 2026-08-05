@@ -123,9 +123,11 @@ function HealthTab() {
 function CommitteesTab() {
   const [items, setItems] = useState<Committee[]>([]);
   const [chairs, setChairs] = useState<Array<{ id: string; displayName: string }>>([]);
+  const [vices, setVices] = useState<Array<{ id: string; displayName: string }>>([]);
   const [name, setName] = useState('');
   const [topic, setTopic] = useState('');
   const [chairForCreate, setChairForCreate] = useState('');
+  const [viceForCreate, setViceForCreate] = useState('');
   const [busy, setBusy] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [delegations, setDelegations] = useState<Delegate[]>([]);
@@ -139,6 +141,11 @@ function CommitteesTab() {
       setChairs(
         (u.data as { users: UserRow[] })
           .users.filter((x) => x.role === 'chair')
+          .map((x) => ({ id: x.id, displayName: x.displayName })),
+      );
+      setVices(
+        (u.data as { users: UserRow[] })
+          .users.filter((x) => x.role === 'vice')
           .map((x) => ({ id: x.id, displayName: x.displayName })),
       );
     }
@@ -158,13 +165,18 @@ function CommitteesTab() {
       name: name.trim(),
       topic: topic.trim(),
       chairUserId: chairForCreate || null,
+      viceUserId: viceForCreate || null,
     });
     setBusy(false);
-    setName(''); setTopic(''); setChairForCreate('');
+    setName(''); setTopic(''); setChairForCreate(''); setViceForCreate('');
     void refresh();
   }
   async function setChair(cid: string, chairUserId: string) {
     await api.apiRequest('PUT', `/admin/committee/${cid}`, { chairUserId: chairUserId || null });
+    void refresh();
+  }
+  async function setVice(cid: string, viceUserId: string) {
+    await api.apiRequest('PUT', `/admin/committee/${cid}`, { viceUserId: viceUserId || null });
     void refresh();
   }
   async function emergency(cid: string, stop: boolean) {
@@ -186,6 +198,8 @@ function CommitteesTab() {
   const selected = items.find((c) => c.id === selectedId);
   const chairNameOf = (cid: string | null) =>
     cid ? chairs.find((c) => c.id === cid)?.displayName ?? 'Unknown' : null;
+  const viceNameOf = (cid: string | null) =>
+    cid ? vices.find((c) => c.id === cid)?.displayName ?? 'Unknown' : null;
 
   return (
     <div className="space-y-4">
@@ -197,6 +211,12 @@ function CommitteesTab() {
           <Select value={chairForCreate} onChange={(e) => setChairForCreate(e.target.value)} title="Chair (optional)">
             <option value="">No chair yet</option>
             {chairs.map((c) => (
+              <option key={c.id} value={c.id}>{c.displayName}</option>
+            ))}
+          </Select>
+          <Select value={viceForCreate} onChange={(e) => setViceForCreate(e.target.value)} title="Vice Chair (optional)">
+            <option value="">No vice yet</option>
+            {vices.map((c) => (
               <option key={c.id} value={c.id}>{c.displayName}</option>
             ))}
           </Select>
@@ -230,8 +250,9 @@ function CommitteesTab() {
                       )}
                     </div>
                   </div>
-                  <div className="mt-1.5 text-xs text-muted">
-                    Chair: {chairNameOf(c.chairUserId) ?? <span className="text-warning">unassigned</span>}
+                  <div className="mt-1.5 text-xs text-muted flex gap-4">
+                    <span>Chair: {chairNameOf(c.chairUserId) ?? <span className="text-warning">unassigned</span>}</span>
+                    <span>Vice: {viceNameOf(c.viceUserId) ?? <span className="text-warning">unassigned</span>}</span>
                   </div>
                 </div>
               ))}
@@ -245,22 +266,38 @@ function CommitteesTab() {
           ) : (
             <div className="space-y-4">
               {/* Chair assignment */}
-              <div>
-                <span className="mb-1 block text-xs font-medium text-muted">Chair</span>
-                <div className="flex gap-2">
-                  <Select
-                    value={selected.chairUserId ?? ''}
-                    onChange={(e) => void setChair(selected.id, e.target.value)}
-                  >
-                    <option value="">Unassigned</option>
-                    {chairs.map((c) => (
-                      <option key={c.id} value={c.id}>{c.displayName}</option>
-                    ))}
-                  </Select>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <span className="mb-1 block text-xs font-medium text-muted">Chair</span>
+                  <div className="flex gap-2">
+                    <Select
+                      value={selected.chairUserId ?? ''}
+                      onChange={(e) => void setChair(selected.id, e.target.value)}
+                    >
+                      <option value="">Unassigned</option>
+                      {chairs.map((c) => (
+                        <option key={c.id} value={c.id}>{c.displayName}</option>
+                      ))}
+                    </Select>
+                  </div>
+                  {chairs.length === 0 && (
+                    <p className="mt-1 text-xs text-warning">Create a chair user in the Users tab first.</p>
+                  )}
                 </div>
-                {chairs.length === 0 && (
-                  <p className="mt-1 text-xs text-warning">Create a chair user in the Users tab first.</p>
-                )}
+                <div>
+                  <span className="mb-1 block text-xs font-medium text-muted">Vice Chair</span>
+                  <div className="flex gap-2">
+                    <Select
+                      value={selected.viceUserId ?? ''}
+                      onChange={(e) => void setVice(selected.id, e.target.value)}
+                    >
+                      <option value="">Unassigned</option>
+                      {vices.map((c) => (
+                        <option key={c.id} value={c.id}>{c.displayName}</option>
+                      ))}
+                    </Select>
+                  </div>
+                </div>
               </div>
 
               {/* Country delegations */}
@@ -317,20 +354,33 @@ function UsersTab() {
     setUsername(''); setPassword(''); setDisplayName('');
     void refresh();
   }
+  const setToast = useStore((s) => s.setToast);
+
   async function forceLogout(uid: string) {
     await api.apiRequest('POST', `/admin/users/${uid}/force-logout`);
+  }
+  async function deleteUser(uid: string) {
+    if (confirm('Are you sure you want to delete this user?')) {
+      const res = await api.apiRequest('DELETE', `/admin/users/${uid}`);
+      if (res.status === 200) {
+        void refresh();
+      } else {
+        setToast((res.data as any)?.message ?? 'Failed to delete user', 'danger');
+      }
+    }
   }
 
   return (
     <div className="space-y-4">
       <Card>
-        <SectionTitle>Create Chair / Admin</SectionTitle>
+        <SectionTitle>Create Chair / Vice / Admin</SectionTitle>
         <div className="grid grid-cols-1 gap-2 md:grid-cols-5">
           <Input placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} />
           <Input placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
           <Input placeholder="Display name" value={displayName} onChange={(e) => setDisplayName(e.target.value)} />
           <Select value={role} onChange={(e) => setRole(e.target.value as Role)}>
             <option value="chair">chair</option>
+            <option value="vice">vice chair</option>
             <option value="admin">admin</option>
           </Select>
           <Button onClick={create} disabled={!username || !password || !displayName}><Plus size={14} /> Create</Button>
@@ -348,10 +398,11 @@ function UsersTab() {
               {items.map((u) => (
                 <tr key={u.id} className="border-t border-border">
                   <td className="py-2">{u.username}</td>
-                  <td className="py-2"><Badge tone={u.role === 'admin' ? 'danger' : 'primary'}>{u.role}</Badge></td>
+                  <td className="py-2"><Badge tone={u.role === 'admin' ? 'danger' : u.role === 'vice' ? 'warning' : 'primary'}>{u.role}</Badge></td>
                   <td className="py-2">{u.displayName}</td>
                   <td className="py-2 text-right">
-                    <Button variant="ghost" className="!py-1 !text-xs" onClick={() => forceLogout(u.id)}>Force logout</Button>
+                    <Button variant="ghost" className="!py-1 !text-xs mr-2" onClick={() => forceLogout(u.id)}>Force logout</Button>
+                    <Button variant="danger" className="!py-1 !text-xs" onClick={() => void deleteUser(u.id)}>Delete</Button>
                   </td>
                 </tr>
               ))}

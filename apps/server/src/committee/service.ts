@@ -25,12 +25,13 @@ export async function createCommittee(params: {
   topic: string;
   description?: string;
   chairUserId?: string | null;
+  viceUserId?: string | null;
 }): Promise<Committee> {
   const id = randomUuid();
   const { rows } = await pool.query(
-    `INSERT INTO committees (id, name, topic, description, status, chair_user_id)
-     VALUES ($1, $2, $3, $4, 'active', $5) RETURNING *`,
-    [id, params.name, params.topic, params.description ?? '', params.chairUserId ?? null],
+    `INSERT INTO committees (id, name, topic, description, status, chair_user_id, vice_user_id)
+     VALUES ($1, $2, $3, $4, 'active', $5, $6) RETURNING *`,
+    [id, params.name, params.topic, params.description ?? '', params.chairUserId ?? null, params.viceUserId ?? null],
   );
   const c = rowToCommittee(rows[0]);
   await audit({
@@ -44,7 +45,7 @@ export async function createCommittee(params: {
 
 export async function updateCommittee(
   id: string,
-  patch: { name?: string; topic?: string; description?: string; chairUserId?: string | null },
+  patch: { name?: string; topic?: string; description?: string; chairUserId?: string | null; viceUserId?: string | null },
 ): Promise<Committee> {
   const sets: string[] = [];
   const params: unknown[] = [id];
@@ -63,6 +64,10 @@ export async function updateCommittee(
   if (patch.chairUserId !== undefined) {
     params.push(patch.chairUserId);
     sets.push(`chair_user_id = $${params.length}`);
+  }
+  if (patch.viceUserId !== undefined) {
+    params.push(patch.viceUserId);
+    sets.push(`vice_user_id = $${params.length}`);
   }
   if (sets.length === 0) throw new ProtocolError('VALIDATION_ERROR', 'No fields to update');
   sets.push(`rev = rev + 1`);
@@ -348,6 +353,7 @@ function rowToCommittee(r: Record<string, unknown>): Committee {
     description: (r.description as string) ?? '',
     status: r.status as Committee['status'],
     chairUserId: (r.chair_user_id as string | null) ?? null,
+    viceUserId: (r.vice_user_id as string | null) ?? null,
     createdAt: Number(r.created_at as number),
     rev: Number(r.rev as number),
   };

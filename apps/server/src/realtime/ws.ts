@@ -180,9 +180,9 @@ async function handleHello(state: ConnectionState, env: Envelope): Promise<void>
     committeeId = rows[0].committee_id;
     displayName = rows[0].display_name;
     country = rows[0].country;
-  } else if (resolved.role === 'chair') {
+  } else if (resolved.role === 'chair' || resolved.role === 'vice') {
     const { rows } = await pool.query(
-      'SELECT u.display_name, c.id AS committee_id FROM users u LEFT JOIN committees c ON c.chair_user_id = u.id WHERE u.id = $1',
+      'SELECT u.display_name, c.id AS committee_id FROM users u LEFT JOIN committees c ON c.chair_user_id = u.id OR c.vice_user_id = u.id WHERE u.id = $1',
       [resolved.userId],
     );
     displayName = rows[0]?.display_name ?? '';
@@ -241,8 +241,8 @@ async function handleHello(state: ConnectionState, env: Envelope): Promise<void>
     });
     // Push current committee state to the delegate.
     void broadcastCommitteeState(committeeId!);
-  } else if (resolved.role === 'chair') {
-    const { rows: cr } = await pool.query('SELECT * FROM committees WHERE chair_user_id = $1', [resolved.userId]);
+  } else if (resolved.role === 'chair' || resolved.role === 'vice') {
+    const { rows: cr } = await pool.query('SELECT * FROM committees WHERE chair_user_id = $1 OR vice_user_id = $1', [resolved.userId]);
     committees = cr.map(rowToCommittee);
     for (const c of committees) void broadcastCommitteeState(c.id);
   } else {
@@ -444,6 +444,7 @@ function rowToCommittee(r: Record<string, unknown>): import('@mun/protocol').Com
     description: (r.description as string) ?? '',
     status: r.status as import('@mun/protocol').CommitteeStatus,
     chairUserId: (r.chair_user_id as string | null) ?? null,
+    viceUserId: (r.vice_user_id as string | null) ?? null,
     createdAt: Number(r.created_at as number),
     rev: Number(r.rev as number),
   };

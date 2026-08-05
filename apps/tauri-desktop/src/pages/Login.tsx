@@ -11,7 +11,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { Settings, Users, UserCog } from 'lucide-react';
+import { Settings, Users, UserCog, Eye, EyeOff } from 'lucide-react';
 import { useStore } from '../store';
 import { api } from '../api';
 import { Button, Input, Card, Select } from '../components/ui';
@@ -33,6 +33,7 @@ export function LoginScreen() {
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
   const [relogin, setRelogin] = useState<{ message: string } | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   // Delegate join form
   const [options, setOptions] = useState<JoinOptionCommittee[]>([]);
@@ -148,9 +149,14 @@ export function LoginScreen() {
                 <span className="mb-1 block text-xs font-medium text-muted">Username</span>
                 <Input value={username} onChange={(e) => setUsername(e.target.value)} autoComplete="username" autoFocus required />
               </label>
-              <label className="block">
+              <label className="block relative">
                 <span className="mb-1 block text-xs font-medium text-muted">Password</span>
-                <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" required />
+                <div className="relative">
+                  <Input type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" required className="pr-10" />
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-2 top-1/2 -translate-y-1/2 text-muted hover:text-text focus:outline-none" aria-label={showPassword ? "Hide password" : "Show password"}>
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
               </label>
               <Button type="submit" className="w-full" disabled={busy || !username || !password}>
                 {busy ? 'Signing in…' : 'Sign in'}

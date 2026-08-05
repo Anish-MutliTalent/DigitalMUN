@@ -22,7 +22,7 @@ export const titleField = z.string().min(1).max(1024).nullable();
 
 // ─── Enums ────────────────────────────────────────────────────────────────────
 
-export const RoleSchema = z.enum(['delegate', 'chair', 'admin']);
+export const RoleSchema = z.enum(['delegate', 'chair', 'admin', 'vice']);
 export const CommitteeStatusSchema = z.enum(['active', 'paused', 'break', 'emergency_stopped']);
 export const AttendanceSchema = z.enum([
   'not_checked_in',
@@ -80,6 +80,7 @@ export const CommitteeSchema = z.object({
   description: z.string().max(2048),
   status: CommitteeStatusSchema,
   chairUserId: uuid.nullable(),
+  viceUserId: uuid.nullable(),
   createdAt: ts,
   rev: z.number().int().nonnegative(),
 });

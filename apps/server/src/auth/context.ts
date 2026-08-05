@@ -81,8 +81,8 @@ export function requireCommitteeChair(): preHandlerHookHandler {
       throw new ProtocolError('AUTH_TOKEN_INVALID', 'Authentication required');
     }
     const user = request.user;
-    if (user.role !== 'chair' && user.role !== 'admin') {
-      throw new ProtocolError('AUTH_FORBIDDEN', 'Chair or admin role required');
+    if (user.role !== 'chair' && user.role !== 'vice' && user.role !== 'admin') {
+      throw new ProtocolError('AUTH_FORBIDDEN', 'Chair, vice, or admin role required');
     }
     if (user.role === 'admin') return; // admins can act as chair
     const committeeId = (request.params as Record<string, unknown>).committeeId as
@@ -91,12 +91,12 @@ export function requireCommitteeChair(): preHandlerHookHandler {
     if (!committeeId) {
       throw new ProtocolError('AUTH_FORBIDDEN', 'Committee context required');
     }
-    const { rows } = await pool.query('SELECT chair_user_id FROM committees WHERE id = $1', [
+    const { rows } = await pool.query('SELECT chair_user_id, vice_user_id FROM committees WHERE id = $1', [
       committeeId,
     ]);
     if (rows.length === 0) throw new ProtocolError('COMMITTEE_NOT_FOUND', 'Committee not found');
-    if (rows[0].chair_user_id !== user.userId) {
-      throw new ProtocolError('AUTH_FORBIDDEN', 'Not the chair of this committee');
+    if (rows[0].chair_user_id !== user.userId && rows[0].vice_user_id !== user.userId) {
+      throw new ProtocolError('AUTH_FORBIDDEN', 'Not the chair or vice of this committee');
     }
   };
 }
